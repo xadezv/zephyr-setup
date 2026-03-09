@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: setup1-v4 (2026-03-09) — без установки SDK ==="
+echo "=== Версия скрипта: setup1-v5 (2026-03-09) — без установки SDK ==="
 
 echo "=== Шаг 1: Активация виртуального окружения ==="
 source ~/zephyrproject/.venv/bin/activate
@@ -22,7 +22,7 @@ echo ""
 echo "=== Готово! Теперь открой 3 терминала: ==="
 echo ""
 echo "  [Терминал 1 — запуск сервера]:"
-echo "    cd ~/zephyrproject/zephyr && west build -t run"
+echo "    source ~/zephyrproject/.venv/bin/activate && cd ~/zephyrproject/zephyr && west build -t run"
 echo ""
 echo "  [Терминал 2 — перехватчик]:"
 echo "    ss -tnlp | grep zephyr        # узнать PORT"

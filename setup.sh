@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: v11 (2026-03-09) ==="
+echo "=== Версия скрипта: v12 (2026-03-09) ==="
 
 echo "=== Шаг 0: Синхронизация времени ==="
 sudo timedatectl set-ntp true
@@ -63,7 +63,7 @@ echo ""
 echo "=== Готово! Теперь открой 3 терминала: ==="
 echo ""
 echo "  [Терминал 1 — запуск сервера]:"
-echo "    cd ~/zephyrproject/zephyr && west build -t run"
+echo "    source ~/zephyrproject/.venv/bin/activate && cd ~/zephyrproject/zephyr && west build -t run"
 echo ""
 echo "  [Терминал 2 — перехватчик]:"
 echo "    ss -tnlp | grep zephyr        # узнать PORT"
