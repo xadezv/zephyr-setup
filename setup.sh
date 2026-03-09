@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: v6 (2026-03-09) ==="
+echo "=== Версия скрипта: v7 (2026-03-09) ==="
 
 echo "=== Шаг 0: Синхронизация времени (фикс ошибок репозитория) ==="
 # Пробуем через NTP
@@ -34,7 +34,11 @@ echo "=== Шаг 3: Установка west ==="
 pip install west
 
 echo "=== Шаг 4: Инициализация Zephyr проекта ==="
-west init ~/zephyrproject
+if [ ! -d ~/zephyrproject/.west ]; then
+    west init ~/zephyrproject
+else
+    echo "Уже инициализирован, пропускаем west init"
+fi
 cd ~/zephyrproject
 west update
 
