@@ -22,21 +22,22 @@ sudo apt update && sudo apt install -y --no-install-recommends \
     python3-wheel python3-venv xz-utils file make gcc gcc-multilib \
     g++-multilib libsdl2-dev libmagic1 wireshark netcat-openbsd
 
-echo "=== Шаг 2: Установка west ==="
-pip3 install west
+echo "=== Шаг 2: Создание виртуального окружения ==="
+rm -rf ~/zephyrproject/.venv
+mkdir -p ~/zephyrproject
+python3 -m venv ~/zephyrproject/.venv
+source ~/zephyrproject/.venv/bin/activate
 
-echo "=== Шаг 3: Инициализация Zephyr проекта ==="
+echo "=== Шаг 3: Установка west ==="
+pip install west
+
+echo "=== Шаг 4: Инициализация Zephyr проекта ==="
 west init ~/zephyrproject
 cd ~/zephyrproject
 west update
 
-echo "=== Шаг 4: Экспорт Zephyr CMake ==="
+echo "=== Шаг 5: Экспорт Zephyr CMake ==="
 west zephyr-export
-
-echo "=== Шаг 5: Создание и активация виртуального окружения ==="
-rm -rf ~/zephyrproject/.venv
-python3 -m venv ~/zephyrproject/.venv
-source ~/zephyrproject/.venv/bin/activate
 
 echo "=== Шаг 6: Установка Python-зависимостей ==="
 pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
