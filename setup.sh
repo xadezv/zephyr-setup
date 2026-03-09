@@ -2,9 +2,18 @@
 set -e
 
 echo "=== Шаг 0: Синхронизация времени (фикс ошибок репозитория) ==="
+# Пробуем через NTP
 sudo timedatectl set-ntp true
 sudo systemctl restart systemd-timesyncd 2>/dev/null || true
-sleep 2
+sleep 3
+# Если NTP не помог — берём время с сервера Google
+CURRENT_DATE=$(curl -s --head http://google.com 2>/dev/null | grep -i "^date:" | sed 's/[Dd]ate: //')
+if [ -n "$CURRENT_DATE" ]; then
+    sudo date -s "$CURRENT_DATE" && echo "Время синхронизировано: $CURRENT_DATE"
+else
+    echo "Не удалось получить время автоматически. Установи вручную: sudo date -s 'YYYY-MM-DD HH:MM:SS'"
+fi
+sleep 1
 
 echo "=== Шаг 1: Установка базовых утилит ==="
 sudo apt update && sudo apt install -y --no-install-recommends \
