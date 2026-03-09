@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: setup1-v3 (2026-03-09) — без установки SDK ==="
+echo "=== Версия скрипта: setup1-v4 (2026-03-09) — без установки SDK ==="
 
 echo "=== Шаг 1: Активация виртуального окружения ==="
 source ~/zephyrproject/.venv/bin/activate
@@ -16,7 +16,7 @@ west packages pip --install
 echo "=== Шаг 4: Сборка echo_server для native_sim ==="
 cd ~/zephyrproject/zephyr
 west build -b native_sim samples/net/sockets/echo_server \
-    --DEXTRA_CONF_FILE=overlay-nsos.conf
+    -DEXTRA_CONF_FILE=overlay-nsos.conf
 
 echo ""
 echo "=== Готово! Теперь открой 3 терминала: ==="

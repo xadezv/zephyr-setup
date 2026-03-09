@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: v10 (2026-03-09) ==="
+echo "=== Версия скрипта: v11 (2026-03-09) ==="
 
 echo "=== Шаг 0: Синхронизация времени ==="
 sudo timedatectl set-ntp true
@@ -57,7 +57,7 @@ west sdk install
 
 echo "=== Шаг 10: Сборка echo_server для native_sim ==="
 west build -b native_sim samples/net/sockets/echo_server \
-    --DEXTRA_CONF_FILE=overlay-nsos.conf
+    -DEXTRA_CONF_FILE=overlay-nsos.conf
 
 echo ""
 echo "=== Готово! Теперь открой 3 терминала: ==="
