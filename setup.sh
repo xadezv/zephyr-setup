@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+echo "=== Шаг 0: Синхронизация времени (фикс ошибок репозитория) ==="
+sudo timedatectl set-ntp true
+sudo systemctl restart systemd-timesyncd 2>/dev/null || true
+sleep 2
+
 echo "=== Шаг 1: Установка базовых утилит ==="
 sudo apt update && sudo apt install -y --no-install-recommends \
     git cmake ninja-build gperf ccache dfu-util device-tree-compiler \
