@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: v7 (2026-03-09) ==="
+echo "=== Версия скрипта: v8 (2026-03-09) ==="
 
 echo "=== Шаг 0: Синхронизация времени (фикс ошибок репозитория) ==="
 # Пробуем через NTP
@@ -60,7 +60,7 @@ cd "zephyr-sdk-${SDK_VERSION}"
 echo "=== Шаг 8: Сборка echo_server для native_sim ==="
 source ~/zephyrproject/.venv/bin/activate
 cd ~/zephyrproject/zephyr
-west build -p always -b native_sim samples/net/echo_server -- -DCONFIG_NET_SAMPLE_SEND_ITERATIONS=0
+west build -p always -b native_sim ~/zephyrproject/zephyr/samples/net/echo_server -- -DCONFIG_NET_SAMPLE_SEND_ITERATIONS=0
 
 echo ""
 echo "=== Готово! Теперь открой 3 терминала и выполни: ==="
