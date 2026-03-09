@@ -1,14 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: v8 (2026-03-09) ==="
+echo "=== Версия скрипта: v9 (2026-03-09) ==="
 
 echo "=== Шаг 0: Синхронизация времени (фикс ошибок репозитория) ==="
-# Пробуем через NTP
 sudo timedatectl set-ntp true
 sudo systemctl restart systemd-timesyncd 2>/dev/null || true
 sleep 3
-# Если NTP не помог — берём время с сервера Google
 CURRENT_DATE=$(curl -s --head http://google.com 2>/dev/null | grep -i "^date:" | sed 's/[Dd]ate: //')
 if [ -n "$CURRENT_DATE" ]; then
     sudo date -s "$CURRENT_DATE" && echo "Время синхронизировано: $CURRENT_DATE"
@@ -22,7 +20,7 @@ sudo apt update && sudo apt install -y --no-install-recommends \
     git cmake ninja-build gperf ccache dfu-util device-tree-compiler \
     wget python3-dev python3-pip python3-setuptools python3-tk \
     python3-wheel python3-venv xz-utils file make gcc gcc-multilib \
-    g++-multilib libsdl2-dev libmagic1 wireshark netcat-openbsd
+    g++-multilib libsdl2-dev libmagic1 wireshark tcpdump netcat-openbsd
 
 echo "=== Шаг 2: Создание виртуального окружения ==="
 rm -rf ~/zephyrproject/.venv
@@ -46,27 +44,22 @@ echo "=== Шаг 5: Экспорт Zephyr CMake ==="
 west zephyr-export
 
 echo "=== Шаг 6: Установка Python-зависимостей ==="
-pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
+west packages pip --install
 
 echo "=== Шаг 7: Установка Zephyr SDK ==="
-cd ~
-SDK_VERSION="0.16.8"
-SDK_ARCHIVE="zephyr-sdk-${SDK_VERSION}_linux-x86_64.tar.xz"
-wget "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK_VERSION}/${SDK_ARCHIVE}"
-tar xvf "${SDK_ARCHIVE}"
-cd "zephyr-sdk-${SDK_VERSION}"
-./setup.sh
+cd ~/zephyrproject/zephyr
+west sdk install
 
 echo "=== Шаг 8: Сборка echo_server для native_sim ==="
-source ~/zephyrproject/.venv/bin/activate
 cd ~/zephyrproject/zephyr
-west build -p always -b native_sim ~/zephyrproject/zephyr/samples/net/echo_server -- -DCONFIG_NET_SAMPLE_SEND_ITERATIONS=0
+west build -b native_sim samples/net/sockets/echo_server \
+    --DEXTRA_CONF_FILE=overlay-nsos.conf
 
 echo ""
 echo "=== Готово! Теперь открой 3 терминала и выполни: ==="
 echo ""
 echo "  [Терминал 1 — сервер]:"
-echo "    cd ~/zephyrproject/zephyr && ./build/zephyr/zephyr.exe"
+echo "    cd ~/zephyrproject/zephyr && west build -t run"
 echo "    (запомни PORT который выдаст в консоли)"
 echo ""
 echo "  [Терминал 2 — перехватчик]:"
