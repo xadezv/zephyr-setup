@@ -1,16 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "=== Версия скрипта: setup3-v1 (2026-03-10) — полный сброс и пересборка ==="
+echo "=== Версия скрипта: setup3-v2 (2026-03-10) — venv вне zephyrproject ==="
 
 echo "=== Шаг 1: Сносим старый zephyrproject ==="
 deactivate 2>/dev/null || true
-rm -rf ~/zephyrproject
+rm -rf ~/zephyrproject ~/.venv-zephyr
 
 echo "=== Шаг 2: Создаём виртуальное окружение ==="
-mkdir -p ~/zephyrproject
-python3 -m venv ~/zephyrproject/.venv
-source ~/zephyrproject/.venv/bin/activate
+python3 -m venv ~/.venv-zephyr
+source ~/.venv-zephyr/bin/activate
 
 echo "=== Шаг 3: Установка west ==="
 pip install west
@@ -38,7 +37,7 @@ echo ""
 echo "=== Готово! Теперь открой 3 терминала: ==="
 echo ""
 echo "  [Терминал 1 — запуск сервера]:"
-echo "    source ~/zephyrproject/.venv/bin/activate && cd ~/zephyrproject/zephyr && west build -t run"
+echo "    source ~/.venv-zephyr/bin/activate && cd ~/zephyrproject/zephyr && west build -t run"
 echo ""
 echo "  [Терминал 2 — перехватчик]:"
 echo "    ss -tnlp | grep zephyr        # узнать PORT"
