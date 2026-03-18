@@ -22,7 +22,7 @@ CONFIG_DEBUG_OPTIMIZATIONS=y
 CONF
 
 # Шаг 4: main.c с уязвимостью
-cat > src/main.c << 'MAinc'
+cat > src/main.c << 'MAINCI'
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 #include <string.h>
