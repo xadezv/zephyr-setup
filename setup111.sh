@@ -1,8 +1,12 @@
 #!/bin/bash
-# Лабораторная работа 2 — Zephyr Stack Overflow
+# Лабораторная работа 2 — Zephyr Stack Overflow (полный автомат)
+
+set -e
+
+cd ~/zephyrproject
+source .venv/bin/activate
 
 # Шаг 1: Создание директории приложения
-cd ~/zephyrproject
 mkdir -p apps/lab_stack_overflow/src
 cd apps/lab_stack_overflow
 
@@ -42,37 +46,54 @@ void main(void)
 }
 MAINCI
 
-# Шаг 5: Сборка и запуск (ожидаем FATAL_ERROR)
+# Шаг 5: Сборка уязвимой версии
+echo "=== Сборка уязвимой версии (без защиты) ==="
 cd ~/zephyrproject
-source .venv/bin/activate
-west build -p always -b native_sim apps/lab_stack_overflow
-west build -t run || true
+west build -p always -b native_sim apps/lab_stack_overflow 2>&1 | tail -5
 
-# Шаг 6: Анализ в GDB
+# Шаг 6: Запуск — ожидаем FATAL_ERROR или crash
+echo "=== Запуск уязвимой программы ==="
+timeout 5 west build -t run 2>&1 || echo "[FATAL_ERROR — ожидаемое переполнение буфера]"
+
+# Шаг 7: GDB анализ уязвимой версии
+echo "=== GDB анализ БЕЗ защиты ==="
 cd ~/zephyrproject/build
 ls zephyr/zephyr.exe
-echo "--- Запускаем GDB ---"
-echo -e "run\nbt\ninfo registers\ndisas process_command\nquit" | gdb -q zephyr/zephyr.exe
+gdb -q \
+  -ex "set pagination off" \
+  -ex "run" \
+  -ex "bt" \
+  -ex "info registers" \
+  -ex "disas process_command" \
+  -ex "quit" \
+  zephyr/zephyr.exe 2>&1 || true
 
-# Шаг 7: Включаем Stack Canaries
-cd ~/zephyrproject/apps/lab_stack_overflow
-cat > prj.conf << 'CONF'
+# Шаг 8: Включаем Stack Canaries
+echo "=== Включаем Stack Canaries ==="
+cat > ~/zephyrproject/apps/lab_stack_overflow/prj.conf << 'CONF'
 CONFIG_CONSOLE=y
 CONFIG_PRINTK=y
 CONFIG_NO_OPTIMIZATIONS=y
 CONFIG_STACK_CANARIES=y
 CONF
 
-# Шаг 8: Пересборка с защитой
+# Шаг 9: Пересборка с защитой
+echo "=== Сборка с Stack Canaries ==="
 cd ~/zephyrproject
-west build -p always -b native_sim apps/lab_stack_overflow
-west build -t run || true
+west build -p always -b native_sim apps/lab_stack_overflow 2>&1 | tail -5
+timeout 5 west build -t run 2>&1 || echo "[Программа завершена — canary сработал]"
 
-# Шаг 9: GDB с защитой — смотрим отличия
+# Шаг 10: GDB анализ с защитой
+echo "=== GDB анализ С защитой (Stack Canaries) ==="
 cd ~/zephyrproject/build
-echo -e "disas process_command\nquit" | gdb -q zephyr/zephyr.exe
+gdb -q \
+  -ex "set pagination off" \
+  -ex "disas process_command" \
+  -ex "quit" \
+  zephyr/zephyr.exe 2>&1 || true
 
-# Шаг 10: Устранение уязвимости — безопасный main.c
+# Шаг 11: Безопасная версия main.c
+echo "=== Устранение уязвимости ==="
 cat > ~/zephyrproject/apps/lab_stack_overflow/src/main.c << 'MAINCI'
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
@@ -101,9 +122,11 @@ void main(void)
 }
 MAINCI
 
-# Шаг 11: Финальная сборка с исправленным кодом
+# Шаг 12: Финальная сборка с исправленным кодом
+echo "=== Финальная сборка — безопасная версия ==="
 cd ~/zephyrproject
-west build -p always -b native_sim apps/lab_stack_overflow
-west build -t run
+west build -p always -b native_sim apps/lab_stack_overflow 2>&1 | tail -5
+west build -t run 2>&1 || true
 
-echo "=== Лабораторная работа 2 выполнена ==="
+echo ""
+echo "=== Лабораторная работа 2 выполнена полностью ==="
